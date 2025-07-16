@@ -1,8 +1,6 @@
-# 모든 것을 무시합니다.
-*
-
-# .gitignore 파일 자체는 무시하지 않습니다.
-!.gitignore
-
-# shell 폴더 자체와 그 안의 내용은 무시하지 않습니다.
-!shell/
+bk
+certs
+.git
+metrics.json
+script.js  
+script.js.bk
