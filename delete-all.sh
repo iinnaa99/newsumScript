@@ -1,10 +1,10 @@
 #!/bin/bash
 
 echo "CronJob 삭제"
-kubectl delete -f cronjob.yaml --ignore-not-found
+kubectl delete -f cronjob-data.yaml --ignore-not-found
 
 echo "CronJob용 Secret 삭제"
-kubectl delete -f secret.yaml --ignore-not-found
+kubectl delete -f cronjob-secret.yaml --ignore-not-found
 
 echo "웹앱 리소스 삭제 (HPA, Service, Deployment, ConfigMap)"
 kubectl delete -f newsum-ingress.yaml --ignore-not-found

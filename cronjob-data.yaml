@@ -1,8 +1,7 @@
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: news-processing-pipeline # CronJob의 이름
-  namespace: site # CronJob을 배포할 네임스페이스 (필요에 따라 변경)
+  name: newsum-data # CronJob의 이름
 spec:
   schedule: "*/15 * * * *" # 매일 새벽 2시에 실행 (Cron 형식)
                         # 예시: "*/5 * * * *" (매 5분마다)
@@ -12,6 +11,10 @@ spec:
   jobTemplate:
     spec:
       template:
+        metadata:
+          labels:
+            app: newsum-data
+            newsum-data: "true"
         spec:
           restartPolicy: OnFailure # Pod 내 컨테이너 실패 시 재시작 정책
           volumes:
@@ -21,6 +24,13 @@ spec:
             - name: py38-data-collection-clustering # 첫 번째 initContainer (Python 3.8)
               image: seungo/data_raw:v2 # Docker Hub 이미지 경로
               imagePullPolicy: Always # 항상 최신 이미지를 풀(pull)하도록 설정
+              resources:
+                requests:
+                  memory: "1Gi"
+                  cpu: "0.5"
+                limits:
+                  memory: "1Gi"
+                  cpu: "0.5"
               volumeMounts:
                 - name: shared-data
                   mountPath: /app/data # 컨테이너 내부의 /app/data 경로에 마운트
@@ -28,32 +38,32 @@ spec:
                 - name: NAVER_CLIENT_ID
                   valueFrom:
                     secretKeyRef: # Secret에서 민감 정보 가져오기 (권장)
-                      name: news-api-secrets
+                      name: newsum-data-secrets
                       key: NAVER_CLIENT_ID
                 - name: NAVER_KEY
                   valueFrom:
                     secretKeyRef: # Secret에서 민감 정보 가져오기 (권장)
-                      name: news-api-secrets # 생성할 Secret의 이름
+                      name: newsum-data-secrets # 생성할 Secret의 이름
                       key: NAVER_KEY         # Secret 내의 키
                 - name: DB_HOST
                   valueFrom:
                     secretKeyRef: # Secret에서 민감 정보 가져오기 (권장)
-                      name: news-api-secrets
+                      name: newsum-data-secrets
                       key: DB_HOST
                 - name: DB_USER
                   valueFrom:
                     secretKeyRef: # Secret에서 민감 정보 가져오기 (권장)
-                      name: news-api-secrets
+                      name: newsum-data-secrets
                       key: DB_USER
                 - name: DB_PASSWORD
                   valueFrom:
                     secretKeyRef: # Secret에서 민감 정보 가져오기 (권장)
-                      name: news-api-secrets
+                      name: newsum-data-secrets
                       key: DB_PASSWORD
                 - name: DB_NAME
                   valueFrom:
                     secretKeyRef: # Secret에서 민감 정보 가져오기 (권장)
-                      name: news-api-secrets
+                      name: newsum-data-secrets
                       key: DB_NAME
               # CMD는 Dockerfile에서 정의된 것을 사용합니다. (naverapi.py && news_cluster.py)
 
@@ -61,6 +71,13 @@ spec:
             - name: py310-ai-summary # 메인 컨테이너 (Python 3.10)
               image: seungo/data_sum:v1 # Docker Hub 이미지 경로
               imagePullPolicy: Always
+              resources:
+                requests:
+                  memory: "1Gi"
+                  cpu: "0.5"
+                limits:
+                  memory: "1Gi"
+                  cpu: "0.5"
               volumeMounts:
                 - name: shared-data
                   mountPath: /app/data # 컨테이너 내부의 /app/data 경로에 마운트
@@ -68,27 +85,27 @@ spec:
                 - name: GOOGLE_API_KEY
                   valueFrom:
                     secretKeyRef: # Secret에서 민감 정보 가져오기 (권장)
-                      name: news-api-secrets
+                      name: newsum-data-secrets
                       key: GOOGLE_API_KEY
                 - name: DB_HOST
                   valueFrom:
                     secretKeyRef: # Secret에서 민감 정보 가져오기 (권장)
-                      name: news-api-secrets
+                      name: newsum-data-secrets
                       key: DB_HOST
                 - name: DB_USER
                   valueFrom:
                     secretKeyRef: # Secret에서 민감 정보 가져오기 (권장)
-                      name: news-api-secrets
+                      name: newsum-data-secrets
                       key: DB_USER
                 - name: DB_PASSWORD
                   valueFrom:
                     secretKeyRef: # Secret에서 민감 정보 가져오기 (권장)
-                      name: news-api-secrets
+                      name: newsum-data-secrets
                       key: DB_PASSWORD
                 - name: DB_NAME
                   valueFrom:
                     secretKeyRef: # Secret에서 민감 정보 가져오기 (권장)
-                      name: news-api-secrets
+                      name: newsum-data-secrets
                       key: DB_NAME
               # CMD는 Dockerfile에서 정의된 것을 사용합니다. (python3 AIapi.py)
 
