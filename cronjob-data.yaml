@@ -3,7 +3,7 @@ kind: CronJob
 metadata:
   name: newsum-data # CronJob의 이름
 spec:
-  schedule: "*/15 * * * *" # 매일 새벽 2시에 실행 (Cron 형식)
+  schedule: "26 * * * *" # 매일 새벽 2시에 실행 (Cron 형식)
                         # 예시: "*/5 * * * *" (매 5분마다)
   concurrencyPolicy: Forbid # 이전 Job이 아직 실행 중이면 새 Job을 시작하지 않음
   successfulJobsHistoryLimit: 1 # 성공한 Job의 기록을 1개만 유지
@@ -22,14 +22,14 @@ spec:
               emptyDir: {}      # Pod의 수명 동안만 존재하는 임시 볼륨
           initContainers: # 메인 컨테이너 시작 전 순차적으로 실행될 컨테이너들
             - name: py38-data-collection-clustering # 첫 번째 initContainer (Python 3.8)
-              image: seungo/data_raw:v2 # Docker Hub 이미지 경로
+              image: seungo/data_raw:v3 # Docker Hub 이미지 경로
               imagePullPolicy: Always # 항상 최신 이미지를 풀(pull)하도록 설정
               resources:
                 requests:
-                  memory: "1Gi"
+                  memory: "2Gi"
                   cpu: "0.5"
                 limits:
-                  memory: "1Gi"
+                  memory: "2Gi"
                   cpu: "0.5"
               volumeMounts:
                 - name: shared-data
@@ -69,7 +69,7 @@ spec:
 
           containers: # initContainers가 모두 성공적으로 완료된 후 실행될 메인 컨테이너
             - name: py310-ai-summary # 메인 컨테이너 (Python 3.10)
-              image: seungo/data_sum:v1 # Docker Hub 이미지 경로
+              image: seungo/data_sum:v3 # Docker Hub 이미지 경로
               imagePullPolicy: Always
               resources:
                 requests:
